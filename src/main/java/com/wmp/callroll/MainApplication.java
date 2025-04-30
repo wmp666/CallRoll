@@ -103,110 +103,12 @@ public class MainApplication extends GameApplication {
             callButtonGroup.setAlignment(Pos.CENTER);
             Button button = new Button("祈愿1次");
             button.setOnAction(e -> {
-                System.out.println("点名一次");
-
-                String name = CallRollTool.getName(nameInfo);
-                System.out.println(name);
-
-                Media media;
-                int i = nameInfo.get(name);
-                if (i == 4){
-                    media = new Media(Objects.requireNonNull(getClass().getResource("video/1-4.mp4")).toString());
-                } else if (i == 5) {
-                    media = new Media(Objects.requireNonNull(getClass().getResource("video/1-5.mp4")).toString());
-                }else{
-                    media = new Media(Objects.requireNonNull(getClass().getResource("video/1-3.mp4")).toString());
-                }
-                MediaPlayer mediaPlayer = new MediaPlayer(media);
-                MediaView mediaView = new MediaView(mediaPlayer);
-
-                Pane pane = new Pane();
-                pane.getChildren().add(mediaView);
-                Scene scene = new Scene(pane);
-
-                Stage view = new Stage();
-                view.setTitle("祈愿");
-                view.setResizable(false);
-                view.setScene(scene);
-
-
-                mediaPlayer.play();
-
-                mediaPlayer.setOnReady(() -> {
-                    // 计算窗口装饰高度（标题栏高度）
-                    double decorationHeight = view.getHeight() - scene.getHeight();
-
-                    view.setWidth(media.getWidth());
-                    view.setHeight(media.getHeight() + decorationHeight);
-                });
-
-                view.setAlwaysOnTop(true);
-                view.show();
-                view.setOnCloseRequest(event -> {
-                    mediaPlayer.stop();
-                    showResult(name);
-                });
-                mediaPlayer.setOnEndOfMedia(() -> {
-                    view.close();
-                    showResult(name);
-                });
-
+                showWishVideo(1);
             });
 
             Button button10 = new Button("祈愿10次");
             button10.setOnAction(e -> {
-                System.out.println("点名十次");
-
-                ArrayList<String> names = new ArrayList<>();
-                int j = 4;
-                for (int i = 0; i < 10; i++) {
-                    String name = CallRollTool.getName(nameInfo);
-                    names.add(name);
-                    if (nameInfo.get(name) > j) j = nameInfo.get(name);
-                }
-
-                Media media;
-
-                if (j == 5) {
-                    media = new Media(Objects.requireNonNull(getClass().getResource("video/10-5.mp4")).toString());
-                }else{
-                    media = new Media(Objects.requireNonNull(getClass().getResource("video/10-4.mp4")).toString());
-                }
-                MediaPlayer mediaPlayer = new MediaPlayer(media);
-                MediaView mediaView = new MediaView(mediaPlayer);
-
-                Pane pane = new Pane();
-                pane.getChildren().add(mediaView);
-                Scene scene = new Scene(pane);
-
-                Stage view = new Stage();
-                view.setTitle("祈愿");
-                view.setResizable(false);
-                view.setScene(scene);
-
-
-                mediaPlayer.play();
-
-                mediaPlayer.setOnReady(() -> {
-                    // 计算窗口装饰高度（标题栏高度）
-                    double decorationHeight = view.getHeight() - scene.getHeight();
-
-                    view.setWidth(media.getWidth());
-                    view.setHeight(media.getHeight() + decorationHeight);
-                });
-
-                view.setAlwaysOnTop(true);
-                view.show();
-                view.setOnCloseRequest(event -> {
-                    mediaPlayer.stop();
-                    showResult(names.toArray(String[]::new));
-                });
-                mediaPlayer.setOnEndOfMedia(() -> {
-                    view.close();
-                    showResult(names.toArray( String[]::new));
-
-                });
-
+                showWishVideo(10);
             });
 
             button.setStyle(getGenshinButtonStyle("#c79b4d", "#e8d282"));
@@ -220,6 +122,84 @@ public class MainApplication extends GameApplication {
         }
 
         FXGL.addUINode(borderPane);
+    }
+
+    private void showWishVideo(int count) {
+        System.out.printf("点名%s次", count);
+
+        int star = 0;
+        ArrayList<String> names = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String name = CallRollTool.getName(nameInfo);
+            names.add(name);
+            if (nameInfo.get(name) > star) star = nameInfo.get(name);
+        }
+        String name = CallRollTool.getName(nameInfo);
+        System.out.println(name);
+
+        Media media;
+
+        if (count ==1){
+            if (star == 4){
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/1-4.mp4")).toString());
+            } else if (star == 5) {
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/1-5.mp4")).toString());
+            } else if (star == 6) {
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/1-6.mp4")).toString());
+            } else{
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/1-3.mp4")).toString());
+            }
+        }else {
+            if (star == 5) {
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/10-5.mp4")).toString());
+            } else if (star == 6) {
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/1-6.mp4")).toString());
+            } else{
+                media = new Media(Objects.requireNonNull(getClass().getResource("video/10-4.mp4")).toString());
+            }
+        }
+
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        MediaView mediaView = new MediaView(mediaPlayer);
+
+        Pane pane = new Pane();
+        pane.getChildren().add(mediaView);
+        Scene scene = new Scene(pane);
+
+        Stage view = new Stage();
+        view.setTitle("祈愿");
+        view.setResizable(false);
+        view.setScene(scene);
+
+        mediaPlayer.play();
+        mediaPlayer.setOnReady(() -> {
+            // 计算窗口装饰高度（标题栏高度）
+            double decorationHeight = view.getHeight() - scene.getHeight();
+
+
+            view.setWidth((double) media.getWidth() / 2);
+            view.setHeight((media.getHeight() + decorationHeight) /2);
+
+            mediaView.setFitWidth(view.getWidth());
+            mediaView.setFitHeight(view.getHeight());
+        });
+        mediaPlayer.stop();
+
+
+        view.setAlwaysOnTop(true);
+
+        view.setOnCloseRequest(event -> {
+            view.close();
+            mediaPlayer.stop();
+            showResult(names.toArray(new String[0]));
+        });
+        mediaPlayer.setOnEndOfMedia(() -> {
+            view.close();
+            showResult(names.toArray(new String[0]));
+        });
+
+        mediaPlayer.play();
+        view.show();
     }
 
     private static void showResult(String... names) {
